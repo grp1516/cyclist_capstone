@@ -35,7 +35,7 @@ FROM (
 
 /* The combined data above amounted to 6,087,762 rows of data this matches the sum of the 12 individual tables confirming all data has been merged successfully. 
 
-+++++++++++++++ Analyzing all columns for cleaning+++++++++++++++
+Now I will analyze columns for cleaning and perform data validation.
 
 There are 13 columns total we will start from left to right.
 
