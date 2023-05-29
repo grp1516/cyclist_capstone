@@ -13,8 +13,6 @@ These files were briefly viewed in excel to get an idea of the data we were work
    
  [![Github](https://img.shields.io/badge/SQL_Markdown-green?style=for-the-badge&logo=github)](https://github.com/grp1516/cyclist_capstone/blob/main/SQL%20Markdown)
   </h4>
-  
-  https://console.cloud.google.com/bigquery?sq=223151336584:0bb0fc61a16943c89a11a3fee36dc51f
    
 After analysis and cleaning in SQL, the clean and combined table was connected sheet using google. 
   This allows the data to easily update based on changes to the data in Big Query. 
