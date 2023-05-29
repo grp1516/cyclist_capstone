@@ -14,17 +14,19 @@ These files were briefly viewed in excel to get an idea of the data we were work
  [![Github](https://img.shields.io/badge/SQL_Markdown-green?style=for-the-badge&logo=github)](https://github.com/grp1516/cyclist_capstone/blob/main/SQL%20Markdown)
   </h4>
    
-After analysis and cleaning in SQL, the clean and combined table was connected sheet using google. 
+<h2 align="center"> Data Analysis and Visualization
+  <h4 align="center"> After analysis and cleaning in SQL, the clean and combined table was connected to google sheets. 
   This allows the data to easily update based on changes to the data in Big Query. 
-The exported SQL table was organized via Sheets into pivot tables to further analyze and visualize the data. 
-  To view the .ppt file with data visualizations and analysis of the data, please follow the link directly below. 
+The exported SQL table was organized via Sheets into pivot tables to further analyze and visualize the data.
+  I used Tableau, R and Google Sheets for visualizations.
+After analysis, I organized the data into a powerpoint presentation to present and display my findings to the stakeholders.
+  To view the slide deck including data visualizations and analysis, please follow the link directly below. 
    
-   (((((((((((((((((((INSERT LINK TO PPT FINISHED)))))))))))))))))))))))))))))))))
+ [![Microsoft Powerpoint](https://img.shields.io/badge/Cyclist_Slide_Deck-B7472A?style=for-the-badge&logo=microsoft-powerpoint&logoColor=white)](https://github.com/grp1516/cyclist_capstone/blob/main/Cyclist%20Stakeholder%20Presentation.pdf)
+  </h4>
    
-The visualizations for this data were made using Tableau and Google sheets. 
-   
-<h2 align="center"> Summary of Data Analysis Findings
-  <h5 align="center"> 1. 
 
+
+    
    
    
