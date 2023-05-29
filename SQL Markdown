@@ -3,7 +3,7 @@
 To begin, I have uploaded 12 files to bigquery, representing the previous 13 months of cyclist trip data from March 1 2022 to March 31 2023.
 Now we will combine all 12 tables into one table. We will also create a table called backup so that we can revert if necessary.*/ 
 
-'''sql
+---sql
 CREATE TABLE `Cyclist_22_23.`.`combined_data` AS
 SELECT *
 FROM (
@@ -33,7 +33,7 @@ FROM (
     UNION ALL
     SELECT * FROM `Cyclist_22_23.`.`tripdata_2023_03`
 ) AS `combined`;
-'''
+---
 
 /* The combined data above amounted to 6,087,762 rows, this matches the sum of the 12 individual tables confirming all data has been merged successfully.*/ 
 
