@@ -1,9 +1,8 @@
-# Cleaning and Merging Data in SQL using BigQuery 
+/* 
+To begin, I have uploaded 12 files, representing the previous 12 months of cyclist trip data from March 1 2022 to March 31 2023.
+Now we will combine all 12 tables into one table. We will also create a table called backup so that we can revert if necessary. 
+*/
 
-To begin, I have uploaded 12 files to bigquery, representing the previous 13 months of cyclist trip data from March 1 2022 to March 31 2023.
-Now we will combine all 12 tables into one table. We will also create a table called backup so that we can revert if necessary.*/ 
-
----sql
 CREATE TABLE `Cyclist_22_23.`.`combined_data` AS
 SELECT *
 FROM (
@@ -32,16 +31,15 @@ FROM (
     SELECT * FROM `Cyclist_22_23.`.`tripdata_2023_02`
     UNION ALL
     SELECT * FROM `Cyclist_22_23.`.`tripdata_2023_03`
-) AS `combined`;
----
+) AS `combined`; 
 
-/* The combined data above amounted to 6,087,762 rows, this matches the sum of the 12 individual tables confirming all data has been merged successfully.*/ 
+/* The combined data above amounted to 6,087,762 rows of data this matches the sum of the 12 individual tables confirming all data has been merged successfully. 
 
-## Analyzing Columns for cleaning
++++++++++++++++ Analyzing all columns for cleaning+++++++++++++++
 
-/* There are 13 columns total we will start from left to right.
+There are 13 columns total we will start from left to right.
 
-#### #1 ride_id: all values should contain 16 characters, we will confirm the length and that each value is unique.
+#1 ride_id: all values should contain 16 characters, we will confirm the length and that each value is unique.*/
 
 SELECT LENGTH(ride_id), count(*)
 FROM `Cyclist_22_23..combined_data`
@@ -122,11 +120,11 @@ FROM `Cyclist_22_23.combined_data`;
 
 SELECT COUNT(*)
 FROM `Cyclist_22_23.combined_data`
-WHERE (start_station_name) IS NULL OR (end_station_name) IS NULL
+WHERE (start_station_name) IS NULL OR (end_station_name) IS NULL;
 
 SELECT COUNT(*)
 FROM `Cyclist_22_23.combined_data`
-WHERE (start_station_id) IS NULL OR (end_station_id) IS NULL
+WHERE (start_station_id) IS NULL OR (end_station_id) IS NULL;
 
 /* There are 865,495 or 14.4% null start station names, and 911,798 or 15.2 % null end station names. 
 The previous 2 queries run found that in 1352296 rows, either start or end station data is Null representing 22.5% of rows.
@@ -138,11 +136,11 @@ For this reason, it would be unwise to remove that large amount of data, for fur
 
 SELECT COUNT(*)
 FROM `Cyclist_22_23.combined_data`
-WHERE (start_lat) IS NULL OR (end_lat) IS NULL
+WHERE (start_lat) IS NULL OR (end_lat) IS NULL;
 
 SELECT COUNT(*)
 FROM `Cyclist_22_23.combined_data`
-WHERE (start_lng) IS NULL OR (end_lng) IS NULL
+WHERE (start_lng) IS NULL OR (end_lng) IS NULL;
 
 
 
@@ -155,7 +153,7 @@ The same was try for longitude data with only 734 rows missing either value. The
 SELECT DISTINCT member_casual
 FROM `Cyclist_22_23.combined_data`;
 
-/* Results showed only 2 values in thie field are casual and member, no additional cleaning is required for this column.
+/* Results showed only 2 values in this field are casual and member, no additional cleaning is required for this column.
 
 Now we will create a New table with Start and End station ID and Name data removed for exploration.
 We will not delete this data, as we would be losing greater than 5% of our total data which could negatively impact the validity of my analysis. */
