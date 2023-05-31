@@ -1,169 +1,175 @@
 /* 
-To begin, I have uploaded 12 files, representing the previous 12 months of cyclist trip data from March 1 2022 to March 31 2023.
-Now we will combine all 12 tables into one table. We will also create a table called backup so that we can revert if necessary. 
+To begin, I have uploaded 13 files, representing the previous 13 months of cyclist trip data from March 1 2022 to March 31 2023.
+Now we will combine all 13 tables into one table. We will also create a table called backup so that we can revert if necessary. 
 */
-
-CREATE TABLE `Cyclist_22_23.`.`combined_data` AS
-SELECT *
-FROM (
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_03`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_04`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_05`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_06`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_07`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_08`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_09`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_10`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_11`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_12`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2023_01`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2023_02`
-    UNION ALL
-    SELECT * FROM `Cyclist_22_23.`.`tripdata_2023_03`
-) AS `combined`; 
-
-/* The combined data above amounted to 6,087,762 rows of data this matches the sum of the 12 individual tables confirming all data has been merged successfully. 
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    CREATE TABLE `Cyclist_22_23.`.`combined_data` AS
+        SELECT *
+        FROM (
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_03`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_04`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_05`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_06`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_07`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_08`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_09`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_10`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_11`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2022_12`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2023_01`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2023_02`
+            UNION ALL
+            SELECT * FROM `Cyclist_22_23.`.`tripdata_2023_03`
+            ) AS `combined`; 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/* The combined data above amounted to 6,087,762 rows of data this matches the sum of the 13 individual tables confirming all data has been merged successfully. 
 Now I will analyze columns for cleaning and perform data validation.
-
 There are 13 columns total we will start from left to right.
 
+
 #1 ride_id: all values should contain 16 characters, we will confirm the length and that each value is unique.*/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    SELECT LENGTH(ride_id), count(*)
+    FROM `Cyclist_22_23..combined_data`
+    GROUP BY LENGTH(ride_id);
 
-SELECT LENGTH(ride_id), count(*)
-FROM `Cyclist_22_23..combined_data`
-GROUP BY LENGTH(ride_id);
-
-SELECT COUNT(DISTINCT ride_id)
-FROM `Cyclist_22_23..combined_data`;
-
+    SELECT COUNT(DISTINCT ride_id)
+    FROM `Cyclist_22_23..combined_data`;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* All values are unique but 4,073 were identified having less than 16 characters, a new clean table will be made only containing ride_id with 16 characters.*/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    DELETE FROM `Cyclist_22_23.combined_data`
+    WHERE LENGTH(ride_id) < 16;
 
-DELETE FROM `Cyclist_22_23.combined_data`
-WHERE LENGTH(ride_id) < 16;
 
 #2 Now we will check the rideable_type column. */
-
-SELECT DISTINCT rideable_type
-FROM `Cyclist_22_23..combined_data`;
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    SELECT DISTINCT rideable_type
+    FROM `Cyclist_22_23..combined_data`;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* There are 3 returned types of bike, electric_bike, classic_bike and docked_bike.
-
 Docked bike should not exist, as this is the same bike type as a classic bike. */
-
-UPDATE `Cyclist_22_23..combined_data`
-SET `rideable_type` = 'classic_bike'
-WHERE `rideable_type` = 'docked_bike';
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    UPDATE `Cyclist_22_23..combined_data`
+    SET `rideable_type` = 'classic_bike'
+    WHERE `rideable_type` = 'docked_bike';
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* This code updated all values for docked_bike to classic_bike. 
 Code was run again to ensure only the 2 distinct values of classic_bike and electric_bike exist
 
+
 #3 next we will review both the started_at and ended_at columns to remove null values. */
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    SELECT 
+        COUNT(*) AS num_empty_started_at,
+        COUNT(*) AS num_empty_ended_at
+        FROM `Cyclist_22_23.combined_data`
+        WHERE started_at IS NULL OR ended_at IS NULL;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/* There were no null values, no further cleaning is necessary for these two columns at this time.
 
-SELECT 
-  COUNT(*) AS num_empty_started_at,
-  COUNT(*) AS num_empty_ended_at
-FROM `Cyclist_22_23.combined_data`
-WHERE started_at IS NULL OR ended_at IS NULL;
 
-/* There were no null values, no further cleaning is necessary for these two columns.
-
-#4 Now we will address the ride_length column, this column was created by editing each of the 12 csv files in excel subtracting the ended_at column from the started_at column, results were formatted into h:mm:ss Time format. We will be removing rows where the ride length was greater than 1 minute and shorter than 24 hours. */
-
-DELETE FROM `Cyclist_22_23.combined_data`
-WHERE TIMESTAMP_DIFF(ended_at, started_at, SECOND) < 60 
-OR TIMESTAMP_DIFF(ended_at, started_at, SECOND) > 86400;
-
+#4 Now we will address the ride_length column, this column was created by editing each of the 13 csv files in excel subtracting the ended_at column from 
+the started_at column, results were formatted into h:mm:ss Time format. 
+We will be removing rows where the ride length was greater than 1 minute and shorter than 24 hours. */
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    DELETE FROM `Cyclist_22_23.combined_data`
+    WHERE TIMESTAMP_DIFF(ended_at, started_at, SECOND) < 60 
+    OR TIMESTAMP_DIFF(ended_at, started_at, SECOND) > 86400;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* To confirm that no ride_length still exists outside of the set time perameters, we will run another code. */
-
-SELECT COUNT(*)
-FROM `Cyclist_22_23.combined_data`
-WHERE TIMESTAMP_DIFF(ended_at, started_at, SECOND) < 60 OR TIMESTAMP_DIFF(ended_at, started_at, SECOND) > 86400;
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    SELECT COUNT(*)
+    FROM `Cyclist_22_23.combined_data`
+    WHERE TIMESTAMP_DIFF(ended_at, started_at, SECOND) < 60 OR TIMESTAMP_DIFF(ended_at, started_at, SECOND) > 86400;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* results show 0 remaining ride_length values outside of the parameters.
 
-#5 Now we will look at the day_of_week column, This column was also made in Excel by using =Weekday function. The day of the week is displayed numerically in a 1-7 value 1= Sunday and so on. We will run the following code to make sure only values 1-7 exist in this column. */
 
-SELECT DISTINCT day_of_week
-FROM `Cyclist_22_23.combined_data`;
-
+#5 Now we will look at the day_of_week column, This column was also made in Excel by using =Weekday function. 
+The day of the week is displayed numerically in a 1-7 value 1= Sunday and so on. We will run the following code to make sure only values 1-7 exist in this column. */
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    SELECT DISTINCT day_of_week
+    FROM `Cyclist_22_23.combined_data`;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Running this code confirmed that only values 1-7 exist in this column. 
 
+
 #6 Next we will test the start_station and end_station name and id columns to ensure all naming is consistent*/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    SELECT start_station_name, count(*)
+    FROM `Cyclist_22_23.combined_data`
+    GROUP BY start_station_name
+    ORDER BY start_station_name;
 
-SELECT start_station_name, count(*)
-FROM `Cyclist_22_23.combined_data`
-GROUP BY start_station_name
-ORDER BY start_station_name;
+    SELECT end_station_name, count(*)
+    FROM `Cyclist_22_23.combined_data`
+    GROUP BY end_station_name
+    ORDER BY end_station_name;
 
-SELECT end_station_name, count(*)
-FROM `Cyclist_22_23.combined_data`
-GROUP BY end_station_name
-ORDER BY end_station_name;
+    SELECT COUNT(DISTINCT(start_station_name)) AS unq_startname,
+    COUNT(DISTINCT(end_station_name)) AS unq_endname,
+    COUNT(DISTINCT(start_station_id)) AS unq_startid,
+    COUNT(DISTINCT(end_station_id)) AS unq_endid
+    FROM `Cyclist_22_23.combined_data`;
 
-SELECT COUNT(DISTINCT(start_station_name)) AS unq_startname,
-   COUNT(DISTINCT(end_station_name)) AS unq_endname,
-   COUNT(DISTINCT(start_station_id)) AS unq_startid,
-   COUNT(DISTINCT(end_station_id)) AS unq_endid
-FROM `Cyclist_22_23.combined_data`;
+    SELECT COUNT(*)
+    FROM `Cyclist_22_23.combined_data`
+    WHERE (start_station_name) IS NULL OR (end_station_name) IS NULL;
 
-SELECT COUNT(*)
-FROM `Cyclist_22_23.combined_data`
-WHERE (start_station_name) IS NULL OR (end_station_name) IS NULL;
-
-SELECT COUNT(*)
-FROM `Cyclist_22_23.combined_data`
-WHERE (start_station_id) IS NULL OR (end_station_id) IS NULL;
-
+    SELECT COUNT(*)
+    FROM `Cyclist_22_23.combined_data`
+    WHERE (start_station_id) IS NULL OR (end_station_id) IS NULL;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* There are 865,495 or 14.4% null start station names, and 911,798 or 15.2 % null end station names. 
 The previous 2 queries run found that in 1352296 rows, either start or end station data is Null representing 22.5% of rows.
 It also found that 1352539 rows where either the start station id or end station id were Null representing 22.5% of rows. 
 
-For this reason, it would be unwise to remove that large amount of data, for further observation, a different copy of the data may be analyzed with the null data removed in order to see what the data shows for values with completed fields.
+For this reason, it would be unwise to remove that large amount of data, for further observation, 
+a different copy of the data may be analyzed with the null data removed in order to see what the data shows for values with completed fields.
+
 
 #7 Next we will evaluate the starting and ending latitude and longitude.*/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    SELECT COUNT(*)
+    FROM `Cyclist_22_23.combined_data`
+    WHERE (start_lat) IS NULL OR (end_lat) IS NULL;
 
-SELECT COUNT(*)
-FROM `Cyclist_22_23.combined_data`
-WHERE (start_lat) IS NULL OR (end_lat) IS NULL;
-
-SELECT COUNT(*)
-FROM `Cyclist_22_23.combined_data`
-WHERE (start_lng) IS NULL OR (end_lng) IS NULL;
-
-
-
+    SELECT COUNT(*)
+    FROM `Cyclist_22_23.combined_data`
+    WHERE (start_lng) IS NULL OR (end_lng) IS NULL;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* We found only 734 rows where latitude data is missing for either start or end values,
 The same was try for longitude data with only 734 rows missing either value. These rows can be removed risk free without worry of it changing the outcome of our analysis.
 
+
 #8 Now we will evaluate the member_casual column to ensure consistency.*/
-
-
-SELECT DISTINCT member_casual
-FROM `Cyclist_22_23.combined_data`;
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    SELECT DISTINCT member_casual
+    FROM `Cyclist_22_23.combined_data`;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /* Results showed only 2 values in this field are casual and member, no additional cleaning is required for this column.
 
 Now we will create a New table with Start and End station ID and Name data removed for exploration.
 We will not delete this data, as we would be losing greater than 5% of our total data which could negatively impact the validity of my analysis. */
-
-CREATE TABLE `Cyclist_22_23.`.`station_removed` AS
-SELECT *
-FROM `Cyclist_22_23.combined_data`
-WHERE start_station_id IS NOT NULL 
-  AND end_station_id IS NOT NULL 
-  AND start_station_name IS NOT NULL 
-  AND end_station_name IS NOT NULL;
-
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    CREATE TABLE `Cyclist_22_23.`.`station_removed` AS
+    SELECT *
+    FROM `Cyclist_22_23.combined_data`
+        WHERE start_station_id IS NOT NULL 
+        AND end_station_id IS NOT NULL 
+        AND start_station_name IS NOT NULL 
+        AND end_station_name IS NOT NULL;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+After the new table was created, Both tables were uploaded to Google Sheets for further validation, cleaning, and analysis through pivot tables and visualization.
