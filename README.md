@@ -20,9 +20,11 @@ These files were briefly viewed in excel to get an idea of the data we were work
 The exported SQL table was organized via Sheets into pivot tables to further analyze and visualize the data.
   I used Tableau, R and Google Sheets for visualizations.
 After analysis, I organized the data into a powerpoint presentation to present and display my findings to the stakeholders.
-  To view the slide deck including data visualizations and analysis, please follow the link directly below. 
+  To view the slide deck including data visualizations and analysis, please follow the Power Point link. 
+  To view my published data visualizations and Dashboard, follow the Tableau Public link.
    
  [![Microsoft Powerpoint](https://img.shields.io/badge/Cyclist_Slide_Deck-B7472A?style=for-the-badge&logo=microsoft-powerpoint&logoColor=white)](https://github.com/grp1516/cyclist_capstone/blob/main/Cyclist%20Stakeholder%20Presentation.pdf)
+    [![Tableau](https://img.shields.io/badge/-Tableau_Public-white?style=for-the-badge&logo=Tableau)](https://public.tableau.com/app/profile/grant.ram.parthasarathy/viz/CyclistRideShareDashboard/Dashboard1)
   </h4>
    
 
