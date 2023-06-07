@@ -11,7 +11,7 @@
 <h4 align="center"> To begin the analysis I was given access to the previous 13 months of data via .csv files. 
 These files were briefly viewed in excel to get an idea of the data we were working with. As the size of the data exceeds 6M rows, I used SQL and imported the data into Big Query. To view the Markdown file containing my cleaning process and code please follow the link directly below. 
    
- [![Github](https://img.shields.io/badge/SQL_Markdown-green?style=for-the-badge&logo=github)](https://github.com/grp1516/cyclist_capstone/blob/main/SQL%20Markdown)
+ [![Github](https://img.shields.io/badge/SQL_Markdown-grey?style=for-the-badge&logo=github)](https://github.com/grp1516/cyclist_capstone/blob/main/SQL%20Markdown)
   </h4>
    
 <h2 align="center"> Data Analysis and Visualization
